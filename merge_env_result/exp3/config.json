@@ -1,0 +1,7 @@
+{
+    "scenario_name" : "merge-v0",
+    "file_path" : "./merge_env_result/exp3",
+    "save_dir" : "./merge_env_result/exp3",
+    "action_type": "discrete",
+    "time_steps" : 20000
+}

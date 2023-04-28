@@ -1,0 +1,8 @@
+{
+    "scenario_name": "roundabout-v0",
+    "file_path" : "./roundabout_env_result/exp2",
+    "save_dir" : "./roundabout_env_result/exp2",
+    "enable_cost" : true,
+    "action_type": "discrete",
+    "time_steps" : 5000
+}
