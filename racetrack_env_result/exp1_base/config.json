@@ -1,6 +1,0 @@
-{
-    "scenario_name" : "racetrack-v0",
-    "file_path" : "./racetrack_env_result/exp1_base",
-    "save_dir" : "./racetrack_env_result/exp1_base",
-    "time_steps" : 200000
-}

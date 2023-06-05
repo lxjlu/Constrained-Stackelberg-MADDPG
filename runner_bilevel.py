@@ -2,8 +2,8 @@ from tqdm import tqdm
 from bilevel_maddpg.replay_buffer import Buffer
 from bilevel_maddpg.leader_agent import Leader, Leader_Stochastic
 from bilevel_maddpg.follower_agent import Follower, Follower_Stochastic
-from bilevel_maddpg.leader_agent_base import Leader_Base
-from bilevel_maddpg.follower_agent_base import Follower_Base
+from bilevel_maddpg.leader_agent_bilevel import Leader_Bilevel
+from bilevel_maddpg.follower_agent_bilevel import Follower_Bilevel
 from torch.autograd import Variable
 import torch
 import os
@@ -179,8 +179,8 @@ class Runner_Bilevel:
             os.makedirs(self.save_path)
 
     def _init_agents(self):
-        self.leader_agent = Leader_Base(self.args, 0)
-        self.follower_agent = Follower_Base(self.args, 1)
+        self.leader_agent = Leader_Bilevel(self.args, 0)
+        self.follower_agent = Follower_Bilevel(self.args, 1)
 
     def run(self):
         returns = []

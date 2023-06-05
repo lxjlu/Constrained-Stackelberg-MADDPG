@@ -1,9 +1,0 @@
-{
-    "scenario_name" : "merge-v0",
-    "file_path" : "./merge_env_result/exp5",
-    "save_dir" : "./merge_env_result/exp5",
-    "action_type": "discrete",
-    "cost_threshold" : 2,
-    "batch_size" : 64,
-    "time_steps" : 20000
-}
