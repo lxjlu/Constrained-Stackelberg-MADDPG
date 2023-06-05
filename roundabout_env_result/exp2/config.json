@@ -4,5 +4,7 @@
     "save_dir" : "./roundabout_env_result/exp2",
     "enable_cost" : true,
     "action_type": "discrete",
-    "time_steps" : 5000
+    "cost_threshold" : 1,
+    "batch_size" : 64,
+    "time_steps" : 10000
 }

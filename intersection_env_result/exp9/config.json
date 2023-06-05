@@ -2,6 +2,6 @@
     "scenario_name" : "intersection-v1",
     "file_path" : "./intersection_env_result/exp9",
     "save_dir" : "./intersection_env_result/exp9",
-    "version" : "C-bilevel",
+    "version" : "c_bilevel",
     "time_steps" : 10000
 }

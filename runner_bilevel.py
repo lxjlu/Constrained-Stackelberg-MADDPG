@@ -2,8 +2,8 @@ from tqdm import tqdm
 from bilevel_maddpg.replay_buffer import Buffer
 from bilevel_maddpg.leader_agent import Leader, Leader_Stochastic
 from bilevel_maddpg.follower_agent import Follower, Follower_Stochastic
-from bilevel_maddpg.leader_agent_base import Leader_Base, Leader_Stochastic
-from bilevel_maddpg.follower_agent_base import Follower_Base, Follower_Stochastic
+from bilevel_maddpg.leader_agent_base import Leader_Base
+from bilevel_maddpg.follower_agent_base import Follower_Base
 from torch.autograd import Variable
 import torch
 import os
@@ -51,16 +51,18 @@ class Runner_C_Bilevel:
                     self.reward_record[i].append(total_reward[i])
                 # save first arrive record
                 if info is not None:
-                    self.crash_record.append(info["crashed"])
-                    if info["first_arrived"]==1:
-                        self.leader_arrive_record.append(1)
-                        self.follower_arrive_record.append(0)
-                    elif info["first_arrived"]==2:
-                        self.leader_arrive_record.append(0)
-                        self.follower_arrive_record.append(1)
+                    if self.args.scenario_name == "racetrack-v0":
+                        self.crash_record.append(info["crashed"])
                     else:
-                        self.leader_arrive_record.append(0)
-                        self.follower_arrive_record.append(0)
+                        if info["first_arrived"]==1:
+                            self.leader_arrive_record.append(1)
+                            self.follower_arrive_record.append(0)
+                        elif info["first_arrived"]==2:
+                            self.leader_arrive_record.append(0)
+                            self.follower_arrive_record.append(1)
+                        else:
+                            self.leader_arrive_record.append(0)
+                            self.follower_arrive_record.append(0)
                 # reset episode total reward
                 total_reward = [0, 0]
                 # reset
@@ -155,57 +157,7 @@ class Runner_C_Bilevel:
         plt.xlabel('episodes')
         plt.ylabel('rewards')
         plt.savefig(self.save_path + '/reward_agent{}.png'.format(agent_id), format='png')
-    
-    # def target_action(self, o_next, t):
-    #     next_leader_act = self.leader_agent.select_action(o_next[0], self.noise, self.epsilon, self.cost_threshold)
-    #     next_follower_act = self.follower_agent.select_action(o_next[1], next_leader_act, self.noise, self.epsilon, self.cost_threshold)
-    #     return [next_leader_act, next_follower_act]
-    # def target_action(self, o_next, t):
-    #     # with torch.no_grad():
-    #     #     obs_leader = torch.tensor(o_next[0], dtype=torch.float32)
-    #     #     target_leader_action = self.leader_agent.actor_target_network(obs_leader)
 
-    #     #     obs_follower = torch.tensor(o_next[1], dtype=torch.float32)
-    #     #     target_follower_action = self.follower_agent.actor_target_network(torch.cat([obs_follower, target_leader_action]))
-    #     # return [target_leader_action, target_follower_action]
-
-    #     next_obs_leader = torch.tensor(o_next[0])
-    #     next_obs_follower = torch.tensor(o_next[1])
-                                    
-    #     lr = 0.1 # Outer learning rate
-    #     ilr = 0.1 # Inner learning rate
-    #     T = 10 # num iteration
-    #     leader_action = Variable(torch.randn(1), requires_grad=True)
-    #     follower_action = Variable(torch.randn(1), requires_grad=True)
-    #     yt = torch.zeros(T, 1)
-
-    #     for i in range(T):
-    #         # We nee to compute the total derivative of f wrt x
-    #         for j in range(T):
-    #             grad_y = torch.autograd.grad(self.follower_agent.penalty_obj(next_obs_follower,leader_action,follower_action), follower_action, create_graph=True)[0]
-    #             new_y = follower_action - ilr*grad_y
-    #             follower_action = Variable(new_y, requires_grad=True)
-    #             yt[j] = follower_action
-    #         ###
-    #         alpha = -torch.autograd.grad(self.leader_agent.penalty_obj(next_obs_leader,leader_action,follower_action), follower_action, retain_graph=True)[0]
-    #         gr = torch.zeros_like(alpha)
-    #         ###
-    #         for j in range(T-1,-1,-1):
-    #             y_tmp = Variable(yt[j], requires_grad=True)
-    #             grad_y, = torch.autograd.grad(self.follower_agent.penalty_obj(next_obs_follower,leader_action,y_tmp), y_tmp, create_graph=True )
-    #             loss = -ilr*grad_y@alpha
-    #             aux1 = torch.autograd.grad(loss, leader_action, retain_graph=True)[0]
-    #             aux2 = torch.autograd.grad(loss, y_tmp)[0]
-    #             gr -= aux1
-    #             alpha += aux2
-
-    #         grad_x = torch.autograd.grad(self.leader_agent.penalty_obj(next_obs_leader,leader_action,follower_action), leader_action)[0] 
-    #         ##
-    #         leader_action = leader_action - lr*(grad_x + gr)
-
-    #     target_leader_actions = np.clip(leader_action.detach().numpy(),-1,1)
-    #     target_follower_actions = np.clip(follower_action.detach().numpy(),-1,1)
-    #     return [target_leader_actions, target_follower_actions]
 
 # implemntation of Bilevel RL algorithm
 class Runner_Bilevel:
@@ -243,16 +195,19 @@ class Runner_Bilevel:
                     self.reward_record[i].append(total_reward[i])
                 # save first arrive record
                 if info is not None:
-                    self.crash_record.append(info["crash"])
-                    # if info["first_arrived"]==1:
-                    #     self.leader_arrive_record.append(1)
-                    #     self.follower_arrive_record.append(0)
-                    # elif info["first_arrived"]==2:
-                    #     self.leader_arrive_record.append(0)
-                    #     self.follower_arrive_record.append(1)
-                    # else:
-                    #     self.leader_arrive_record.append(0)
-                    #     self.follower_arrive_record.append(0)
+                    if info is not None:
+                        if self.args.scenario_name == "racetrack-v0":
+                            self.crash_record.append(info["crashed"])
+                        else:
+                            if info["first_arrived"]==1:
+                                self.leader_arrive_record.append(1)
+                                self.follower_arrive_record.append(0)
+                            elif info["first_arrived"]==2:
+                                self.leader_arrive_record.append(0)
+                                self.follower_arrive_record.append(1)
+                            else:
+                                self.leader_arrive_record.append(0)
+                                self.follower_arrive_record.append(0)
                 # reset episode total reward
                 total_reward = [0, 0]
                 # reset
@@ -294,14 +249,8 @@ class Runner_Bilevel:
                 np.save(self.save_path + '/leader_arrive_record.npy', self.leader_arrive_record)
                 np.save(self.save_path + '/follower_arrive_record.npy', self.follower_arrive_record)
                 np.save(self.save_path + '/crash_record.npy', self.crash_record)
-                # plt.figure()
-                # plt.plot(range(len(returns)), returns)
-                # plt.xlabel('episode * ' + str(self.args.evaluate_rate / self.episode_limit))
-                # plt.ylabel('average returns')
-                # plt.savefig(self.save_path + '/plt.png', format='png')
             self.noise = max(0.05, self.noise - 0.0000005)
             self.epsilon = max(0.05, self.epsilon - 0.0000005)
-            # np.save(self.save_path + '/returns.pkl', returns)
         # analyze data
         # for i in range(self.args.n_agents):
         #     self.analysis(i)
@@ -420,19 +369,26 @@ class Runner_Stochastic:
                 total_reward[i]+=r[i]
             # train
             if self.buffer.current_size >= self.args.sample_size:
+                # sample
                 transitions = self.buffer.sample(self.args.batch_size)
+                # add next actions
                 transitions = self.add_target_action(transitions)
+                # train
                 self.leader_agent.train(transitions)
                 self.follower_agent.train(transitions)
             # plot reward
             if time_step > 0 and time_step % self.args.evaluate_rate == 0:
                 returns.append(self.evaluate())
-            self.noise = max(self.min_noise, self.noise - 0.0000005)
-            self.epsilon = max(self.min_epsilon, self.epsilon - 0.0000005)
+                np.save(self.save_path + '/reward_record.npy', self.reward_record)
+                np.save(self.save_path + '/leader_arrive_record.npy', self.leader_arrive_record)
+                np.save(self.save_path + '/follower_arrive_record.npy', self.follower_arrive_record)
+                np.save(self.save_path + '/crash_record.npy', self.crash_record)
+            self.noise = max(self.min_noise, self.noise - 0.000005)
+            self.epsilon = max(self.min_epsilon, self.epsilon - 0.000005)
             # np.save(self.save_path + '/returns.pkl', returns)
         # analyze data
-        for i in range(self.args.n_agents):
-            self.analysis(i)
+        # for i in range(self.args.n_agents):
+        #     self.analysis(i)
         # save data
         np.save(self.save_path + '/reward_record.npy', self.reward_record)
         np.save(self.save_path + '/leader_arrive_record.npy', self.leader_arrive_record)

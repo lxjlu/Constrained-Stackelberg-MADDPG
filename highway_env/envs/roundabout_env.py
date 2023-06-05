@@ -134,6 +134,7 @@ class RoundaboutEnv(AbstractEnv):
         info = self._info(obs, action)
         info["leader_arrived"] = self.has_arrived_target(self.controlled_vehicles[0])
         info["follower_arrived"] = self.has_arrived_target(self.controlled_vehicles[1])
+        info["crash"] = self.controlled_vehicles[0].crashed or self.controlled_vehicles[1].crashed
 
         # cost
         cost = np.zeros(2)

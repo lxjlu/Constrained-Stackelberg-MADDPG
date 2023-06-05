@@ -117,15 +117,15 @@ def make_highway_env(args):
     
     env.reset()
 
-    args.n_players = 2  # 包含敌人的所有玩家个数
-    args.n_agents = 2  # 需要操控的玩家个数，虽然敌人也可以控制，但是双方都学习的话需要不同的算法
-    args.obs_shape = [8, 8]  # 每一维代表该agent的obs维度
-    args.action_shape = [1,1]
+    args.n_players = 2  # agent number
+    args.n_agents = 2  # agent number
+    args.obs_shape = [8, 8]  # obs dim
+    args.action_shape = [1,1] # act dim
     # args.action_shape = [2,2]
-    args.action_dim = [5,5]
-    args.terminal_shape = [1,1]
-    args.high_action = 1
-    args.low_action = -1
+    args.action_dim = [5,5] # act num for discrete action
+    args.terminal_shape = [1,1] # terminal dim
+    args.high_action = 1  # act high for continuous action
+    args.low_action = -1  # act low for continuous action
 
     return env, args
     

@@ -1,0 +1,8 @@
+{
+    "scenario_name" : "racetrack-v0",
+    "file_path" : "./racetrack_env_result/exp10",
+    "save_dir" : "./racetrack_env_result/exp10",
+    "version": "c_bilevel",
+    "cost_threshold" : 0,
+    "time_steps" : 200000
+}

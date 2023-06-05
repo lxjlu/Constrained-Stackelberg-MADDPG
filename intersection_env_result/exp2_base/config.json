@@ -3,5 +3,5 @@
     "file_path" : "./intersection_env_result/exp2_base",
     "save_dir" : "./intersection_env_result/exp2_base",
     "version" : "bilevel",
-    "time_steps" : 10000
+    "time_steps" : 20000
 }

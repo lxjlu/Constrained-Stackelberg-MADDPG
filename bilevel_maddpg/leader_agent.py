@@ -106,7 +106,7 @@ class Leader:
         u[self.agent_id] = self.actor_network(o[self.agent_id])
         u[follwer_agent.agent_id] = follwer_agent.actor_network(torch.cat([o[follwer_agent.agent_id],u[self.agent_id]], dim=1))
 
-        cost_violation = F.relu(self.cost_network(o[self.agent_id], u))
+        cost_violation = F.relu(self.cost_network(o[self.agent_id], u) - self.cost_threshold)
         actor_loss = (- self.critic_network(o[self.agent_id], u) + self.l_multiplier*cost_violation).mean()
         # actor_loss = - self.critic_network(o[self.agent_id], u).mean()
 
@@ -124,8 +124,9 @@ class Leader:
         self.cost_optim.step()
 
         # update lagrange multiplier
-        self.l_multiplier += self.args.lr_actor*cost_violation.mean().item()
-        self.l_multiplier = min(self.l_multiplier, 10)
+        # self.l_multiplier += self.args.lr_lagrangian*(self.cost_network(o[self.agent_id], u).mean().item()-self.cost_threshold)
+        self.l_multiplier += cost_violation.mean().item()*self.args.lr_lagrangian
+        self.l_multiplier = max(0,min(self.l_multiplier, self.args.lagrangian_max_bound))
 
         if self.train_step > 0 and self.train_step % self.args.update_rate == 0:
             self._soft_update_target_network()
@@ -147,8 +148,6 @@ class Leader:
             u = np.clip(u, -self.args.high_action, self.args.high_action)
         return u.copy()
     
-    # def penalty_obj(self, o_next, leader_act, follower_act):
-    #     return -self.critic_target_network(o_next, [leader_act, follower_act], dim=0)
 
     def save_model(self, train_step):
         num = str(train_step // self.args.save_rate)
@@ -189,7 +188,7 @@ class Leader_Stochastic:
         if not os.path.exists(self.model_path):
             os.mkdir(self.model_path)
 
-        # 加载模型
+        # load the model
         if os.path.exists(self.model_path + '/critic_params.pkl'):
             self.critic_network.load_state_dict(torch.load(self.model_path + '/critic_params.pkl'))
             print('Agent {} successfully loaded critic_network: {}'.format(self.agent_id,
@@ -258,16 +257,26 @@ class Leader_Stochastic:
             act = np.random.randint(self.n_action)
         else:
             o = torch.tensor(o, dtype=torch.float32)
+            act = None
             max_q = float("-inf")
-            act = 1
+
+            backup_act = None
+            backup_q = float("-inf")
+            
             for leader_act in torch.arange(self.n_action):
                 for follower_act in torch.arange(self.n_action):
                     u = [F.one_hot(leader_act, num_classes=self.n_action), F.one_hot(follower_act,num_classes=self.n_action)]
                     temp = self.critic_network(o, u, dim=0)
                     if temp>=max_q and self.cost_network(o, u, dim=0)<=cost_threshold:
+                    # if temp>=max_q:
                         max_q = temp
                         act = leader_act.item()
+                    if temp>=backup_q:
+                        backup_q = temp
+                        backup_act = leader_act.item()
             # act = act
+            if act == None:
+                act = backup_act
         return act
 
     def save_model(self, train_step):

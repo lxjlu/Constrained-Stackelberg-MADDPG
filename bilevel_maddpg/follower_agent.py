@@ -124,8 +124,9 @@ class Follower:
         self.cost_optim.step()
 
         # update lagrange multiplier
-        self.l_multiplier += self.args.lr_actor*cost_violation.mean().item()
-        self.l_multiplier = min(self.l_multiplier, 10)
+        # self.l_multiplier += self.args.lr_lagrangian*(self.cost_network(o[self.agent_id], u).mean().item()-self.cost_threshold)
+        self.l_multiplier += cost_violation.mean().item()*self.args.lr_lagrangian
+        self.l_multiplier = max(0,min(self.l_multiplier, self.args.lagrangian_max_bound))
 
         if self.train_step > 0 and self.train_step % self.args.update_rate == 0:
             self._soft_update_target_network()
@@ -190,7 +191,7 @@ class Follower_Stochastic:
         if not os.path.exists(self.model_path):
             os.mkdir(self.model_path)
 
-        # 加载模型
+        # load model
         if os.path.exists(self.model_path + '/critic_params.pkl'):
             self.critic_network.load_state_dict(torch.load(self.model_path + '/critic_params.pkl'))
             print('Agent {} successfully loaded critic_network: {}'.format(self.agent_id,
@@ -215,7 +216,7 @@ class Follower_Stochastic:
         r = torch.tensor(transitions['r_%d' % self.agent_id], dtype=torch.float32)  
         c = torch.tensor(transitions['c_%d' % self.agent_id], dtype=torch.float32)  
         t = torch.tensor(transitions['t_%d' % self.agent_id], dtype=torch.float32)  
-        u, u_next = [], []  # 用来装每个agent经验中的各项
+        u, u_next = [], []  # actions of all agents
         for agent_id in range(self.args.n_agents):
             u.append(F.one_hot(torch.tensor(transitions['u_%d' % agent_id], dtype=torch.int64).squeeze(), num_classes=self.n_action))
             u_next.append(F.one_hot(torch.tensor(transitions['u_next_%d' % agent_id], dtype=torch.int64).squeeze(), num_classes=self.n_action))
@@ -259,18 +260,24 @@ class Follower_Stochastic:
         else:
             o = torch.tensor(o, dtype=torch.float32)
             leader_act = torch.tensor(leader_act)
-            max_q = float("-inf")
             act = None
+            max_q = float("-inf")
+            
+            backup_act = None
+            backup_q = float("-inf")
+
             for follower_act in torch.arange(self.n_action):
                 u = [F.one_hot(leader_act, num_classes=self.n_action), F.one_hot(follower_act,num_classes=self.n_action)]
                 temp = self.critic_network(o, u, dim=0)
-                # if temp>=max_q and self.cost_network(o, u, dim=0)<=cost_threshold:
-                if temp>=max_q:
+                if temp>=max_q and self.cost_network(o, u, dim=0)<=cost_threshold:
+                # if temp>=max_q:
                     max_q = temp
                     act = follower_act.item()
-            # if act == None:
-            #     print("no action")
-            #     act = np.random.randint(self.n_action)
+                if temp>=backup_q:
+                    backup_q = temp
+                    backup_act = follower_act.item()
+            if act == None:
+                act = backup_act
         return act
 
     def save_model(self, train_step):

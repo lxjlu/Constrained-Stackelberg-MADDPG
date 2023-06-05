@@ -3,5 +3,7 @@
     "file_path" : "./merge_env_result/exp3",
     "save_dir" : "./merge_env_result/exp3",
     "action_type": "discrete",
+    "cost_threshold" : 2,
+    "batch_size" : 64,
     "time_steps" : 20000
 }

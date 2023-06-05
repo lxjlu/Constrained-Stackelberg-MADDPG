@@ -2,9 +2,7 @@
     "scenario_name" : "intersection-v1",
     "file_path" : "./intersection_env_result/exp15",
     "save_dir" : "./intersection_env_result/exp15",
-    "version" : "C-bilevel",
-    "lagrangian_multiplier" : 0,
-    "cost_threshold" : 0,
+    "version" : "c_bilevel",
     "min_noise_rate" : 0.01,
     "min_epsilon" : 0.01,
     "time_steps" : 20000
