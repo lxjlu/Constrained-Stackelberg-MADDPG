@@ -1,0 +1,5 @@
+python==3.9
+gym==0.26.2
+matplotlib==3.7.0
+numpy==1.22.3
+tqd,==4.65.0

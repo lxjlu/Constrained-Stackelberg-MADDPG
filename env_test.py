@@ -3,9 +3,7 @@ import time
 import numpy as np
 import highway_env
 highway_env.register_highway_envs()
-           
-# env = gym.make("intersection-v0") # or any other environment  (e.g. roundabout-v0)
-# env = gym.make("racetrack-v0")
+
 env = gym.make("merge-v0")
 env.configure({ 
   "manual_control": True,
