@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ## 2. Quick Start
 
 ```shell
-$ python main_bilevel.py --file-path ./merge_env_result/exp2
+python main_bilevel.py --file-path ./merge_env_result/exp2
 ```
 
 ## 3. Results
