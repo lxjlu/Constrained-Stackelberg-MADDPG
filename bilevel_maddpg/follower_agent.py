@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn.functional as F
 from bilevel_maddpg.model import Actor, Critic, Cost, Critic_Discrete, Cost_Discrete
 
-# follower agent for unconstrained stackelberg maddpg
+# follower agent for constrained stackelberg maddpg
 class Follower:
     def __init__(self, args, agent_id): 
         self.args = args
