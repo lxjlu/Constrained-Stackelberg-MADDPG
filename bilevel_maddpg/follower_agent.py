@@ -161,7 +161,7 @@ class Follower:
 
 # follower agent for constrained stackelberg q learning
 class Follower_Stochastic:
-    def __init__(self, args, agent_id):  # 因为不同的agent的obs、act维度可能不一样，所以神经网络不同,需要agent_id来区分
+    def __init__(self, args, agent_id):  
         self.args = args
         self.agent_id = agent_id
         self.train_step = 0

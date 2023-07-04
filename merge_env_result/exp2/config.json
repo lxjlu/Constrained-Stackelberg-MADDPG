@@ -5,5 +5,5 @@
     "min_noise_rate" : 0,
     "min_epsilon" : 0,
     "batch_size" : 64,
-    "time_steps" : 100
+    "time_steps" : 1200
 }
